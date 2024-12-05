@@ -23,22 +23,16 @@ def formata_numero(valor, prefixo = ''):
 
 st.title('DASHBOARD DE VENDAS :shopping_trolley:')
 
-#acessando aos dados da loja 
+
 url = 'https://labdados.com/produtos'
 
-#criando uma lista para passarmos para o select box
 regioes = ['Brasil', 'Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
 
 
-#criando a barra lateral que será aplicado para todas as abas
 st.sidebar.title('Filtros')
 
-#O primeiro parâmetro é uma label (explicação) do que é esse Selectbox.
-#  Vamos inserir Região entre aspas. Como segundo parâmetro, vamos usar a lista regioes.
+
 regiao = st.sidebar.selectbox('Região', regioes)
-#precisamos fazer uma modificação porque a região "Brasil" não pode ser filtrada na API. Colocamos essa opção no Selectbox para a pessoa usuária não fazer nenhuma filtragem.
-#Caso não queiramos fazer nenhuma filtragem, vamos inserir if regiao == "Brasil" seguido de dois-pontos e regiao igual a aspas vazias. 
-# Ou seja, se a opção do selectbox for Brasil, não faremos nenhuma filtragem e manteremos a URL padrão.
 if regiao == 'Brasil':
     regiao = ''
 
@@ -52,28 +46,17 @@ else:
 
 
 query_string = {'região':regiao.lower(), 'ano':ano}
-#Vamos criar a variável query_string que vai ser igual ao dicionário. A primeira chave vai ser regiao que colocamos na URL e também passamos o valor regiao.lower().
-#Como criamos a lista de valores com as regiões escritas com a primeira letra em maiúscula para ficar visualmente mais fácil para a pessoa usuária fazer a seleção, 
-# mas a API só aceita valores em letras minúsculas. Por isso, passamos o lower() para deixar a região de forma correta na URL.
-#A segunda chave do dicionário será ano entre aspas, seguido de dois-pontos e ano. Dessa maneira, será identificado que o valor ano vai selecionar uma opção do slider.
-#Agora precisamos passar essa variável query_string para dentro do requests.get().
-#Após url de requests.get(), passamos um parâmetro que vai chamar para params igual à query_string.
 
 
-
-
-#agora é preciso acessar os dados da API através do requests.get(),que recebe a url como argumento.
-#response = requests.get(url) adicionaremos a query_string para dentro do requests
 response = requests.get(url, params=query_string)
 
 
-#Temos que transformar essa requisição para um JSON que será transformado em um DataFrame
+
 dados = pd.DataFrame.from_dict(response.json())
 
-#Alterar o formato da coluna de datas, que está como texto e precisa ser convertido para o formato dateTime 
+
 dados['Data da Compra'] = pd.to_datetime(dados['Data da Compra'],format = '%d/%m/%Y')
-#vamos construir uma tabela para armazenar essas informações e, depois, utilizá-la para construir o gráfico.
-#que será a receita mensal
+
 
 filtro_vendedores = st.sidebar.multiselect('Vendedores', dados['Vendedor'].unique())
 if filtro_vendedores:
@@ -129,9 +112,6 @@ fig_mapa_receita = px.scatter_geo(receita_estados,
                                   title='Receita por Estado')
 
 
-#Este gráfico possui a informação de preço no eixo y, mas queremos alterar o nome deste eixo. 
-# Para isso, na linha seguinte, chamamos fig_receita_mensal.update_layout(), passando yaxis_title = 'Receita'. 
-# Assim, estamos nomeando o eixo y como "Receita".
 fig_receita_mensal = px.line(receita_mensal,
                             x= 'Mes',
                             y = 'Preço',
@@ -150,7 +130,7 @@ fig_receita_estados = px.bar(receita_estados.head(),
                             title='Top estados (receita)')
 fig_receita_estados.update_layout(yaxis_title = 'Receita')
 
-#como nessa tabela só possui duas informações, não precisamos passar os eixos x e y
+
 fig_receita_categorias = px.bar(receita_categorias,
                                 text_auto=True,
                                 title='Receita por categoria')
@@ -207,12 +187,9 @@ with aba1:
         st.plotly_chart(fig_mapa_receita,use_container_width=True)  #use_container_width=True vai respeitar o tamanho da coluna
         st.plotly_chart(fig_receita_estados, use_container_width=True)
     with coluna2:
-        st.metric('Quantidade de Vendas',formata_numero(dados.shape[0])) #O Shape me fornece a quantidade de linhas e de colunas, 
-    #como precisamos da quantidade de linhas para saber o total de vendas, utilizo o shape[0]
+        st.metric('Quantidade de Vendas',formata_numero(dados.shape[0])) 
         st.plotly_chart(fig_receita_mensal, use_container_width=True)
         st.plotly_chart(fig_receita_categorias, use_container_width=True)
-
-    #st.dataframe(dados) não usaremos mais essa tabela
 
 with aba2:
     coluna1, coluna2 = st.columns(2)
