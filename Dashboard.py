@@ -1,3 +1,4 @@
+import streamlit as st
 #configurações da página
 st.set_page_config(layout='wide')
 
