@@ -1,4 +1,7 @@
 import streamlit as st
+import requests
+import pandas as pd
+import time
 #configurações da página
 st.set_page_config(layout='wide')
 
